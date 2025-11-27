@@ -1,0 +1,31 @@
+FROM postgres:16
+
+# Instalar dependencias para compilar AGE
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libreadline-dev \
+    zlib1g-dev \
+    flex \
+    bison \
+    git \
+    postgresql-server-dev-16 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clonar y compilar Apache AGE
+WORKDIR /tmp
+RUN git clone https://github.com/apache/age.git
+
+WORKDIR /tmp/age
+RUN git checkout PG16 && \
+    make && \
+    make install
+
+# Limpiar archivos temporales
+RUN rm -rf /tmp/age
+
+# Volver al directorio por defecto
+WORKDIR /
+
+# Configurar AGE para cargar automáticamente
+RUN echo "shared_preload_libraries = 'age'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "search_path = 'ag_catalog, \"\$user\", public'" >> /usr/share/postgresql/postgresql.conf.sample

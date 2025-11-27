@@ -1,0 +1,7 @@
+#.env
+
+# Datos de PostsgresQL
+data/
+
+# Claude AI
+.claude/

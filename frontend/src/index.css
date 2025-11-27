@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos personalizados para el popup de Mapbox */
+.mapboxgl-popup-close-button {
+  font-size: 20px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #fff !important;
+  background-color: #ef4444 !important;
+  transition: background-color 0.2s ease, opacity 0.2s ease !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  opacity: 0.95 !important;
+  position: absolute !important;
+  top: 4px !important;
+  right: 8px !important;
+  box-sizing: border-box !important;
+  line-height: 28px !important;
+  z-index: 50 !important;
+}
+
+.mapboxgl-popup-close-button:hover {
+  background-color: #dc2626 !important;
+  opacity: 1 !important;
+}
+
+.mapboxgl-popup-content {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Animación fade-in para mensajes de éxito */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 227 91% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 227 91% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 227 91% 20%;
+
+    --primary: 227 91% 34%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 90%;
+    --secondary-foreground: 227 91% 34%;
+
+    --muted: 220 15% 95%;
+    --muted-foreground: 227 30% 50%;
+
+    --accent: 215 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 85%;
+    --input: 220 15% 90%;
+    --ring: 227 91% 34%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 227 91% 20%;
+    --sidebar-primary: 227 91% 34%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 95%;
+    --sidebar-accent-foreground: 227 91% 34%;
+    --sidebar-border: 220 15% 85%;
+    --sidebar-ring: 227 91% 34%;
+  }
+
+  .dark {
+    --background: 227 50% 10%;
+    --foreground: 0 0% 95%;
+
+    --card: 227 40% 15%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 227 40% 15%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 227 91% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 227 30% 25%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 227 30% 20%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 215 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 227 30% 25%;
+    --input: 227 30% 25%;
+    --ring: 227 91% 45%;
+    --sidebar-background: 227 50% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 227 91% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 227 30% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 227 30% 25%;
+    --sidebar-ring: 227 91% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Forzar eliminación de sombras en dropdowns Radix/Select específicos */
+.no-shadow-select,
+.no-shadow-select * {
+  box-shadow: none !important;
+}
+
+/* Forzar color y quitar filtros en el item resaltado dentro del select */
+.no-shadow-select [data-highlighted],
+.no-shadow-select [data-state="open"] [data-highlighted] {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Asegurar que no haya drop-shadow en el portal */
+.no-shadow-select {
+  filter: none !important;
+}
+

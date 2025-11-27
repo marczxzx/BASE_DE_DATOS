@@ -1,0 +1,22 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database - Usando psycopg3 para compatibilidad con Python 3.14
+psycopg[binary]
+psycopg-pool
+
+# Validación de Datos
+pydantic
+pydantic-settings
+
+# Variables de Entorno
+python-dotenv
+
+# Utilitarios
+typing-extensions
+
+# Desarrollo y Pruebas
+pytest
+pytest-asyncio
+httpx

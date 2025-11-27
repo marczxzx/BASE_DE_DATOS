@@ -1,0 +1,134 @@
+services:
+  # PostgreSQL con Apache AGE
+  postgres-age:
+    build:
+      context: .
+      dockerfile: Dockerfile.age
+    container_name: postgres-apache-age
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-social_graph_analyzer}
+      POSTGRES_USER: ${POSTGRES_USER:-graph_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-graph_user_password}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-graph_user} -d ${POSTGRES_DB:-social_graph_analyzer}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - age-network
+    command: >
+      postgres
+      -c shared_preload_libraries=age
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=128MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=4MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+
+  # Backend FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: social-graph-backend
+    environment:
+      POSTGRES_HOST: postgres-age
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-social_graph_analyzer}
+      POSTGRES_USER: ${POSTGRES_USER:-graph_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-graph_user_password}
+      GRAPH_NAME: ${GRAPH_NAME:-red_usuarios}
+      APP_NAME: ${APP_NAME:-"Social Graph Analyzer API"}
+      APP_VERSION: ${APP_VERSION:-"1.0.0"}
+      API_V1_PREFIX: ${API_V1_PREFIX:-"/api/v1"}
+      DEBUG: ${DEBUG:-"True"}
+    expose:
+      - "8000"
+    depends_on:
+      postgres-age:
+        condition: service_healthy
+    networks:
+      - age-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Frontend Vite/React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+    container_name: social-graph-frontend
+    expose:
+      - "80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - age-network
+    restart: unless-stopped
+
+  # Nginx Proxy Reverso
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: social-graph-nginx
+    ports:
+      - "8090:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks:
+      - age-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # PgAdmin (opcional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-age
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
+    depends_on:
+      postgres-age:
+        condition: service_healthy
+    networks:
+      - age-network
+    profiles:
+      - with-pgadmin
+
+networks:
+  age-network:
+    driver: bridge

@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entorno Virtual
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Pruebas
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# sistema operativo
+.DS_Store
+Thumbs.db
